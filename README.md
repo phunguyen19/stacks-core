@@ -4,19 +4,67 @@
   </a>
 </p>
 
-# Stacks Blockchain
+# Stacks API Proxy
 
-Reference implementation of the [Stacks blockchain](https://github.com/stacks-network/stacks) in Rust.
-
-Stacks is a layer-2 blockchain that uses Bitcoin as a base layer for security and enables decentralized apps and predictable smart contracts using the [Clarity language](https://clarity-lang.org/). Stacks implements [Proof of Transfer (PoX)](https://community.stacks.org/pox) mining that anchors to Bitcoin security. Leader election happens at the Bitcoin blockchain and Stacks (STX) miners write new blocks on the separate Stacks blockchain. With PoX there is no need to modify Bitcoin to enable smart contracts and decentralized apps.
+A lightweight proxy service for the Stacks blockchain API.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat)](https://www.gnu.org/licenses/gpl-3.0)
-[![Release](https://img.shields.io/github/v/release/stacks-network/stacks-core?style=flat)](https://github.com/stacks-network/stacks-core/releases/latest)
 [![Discord Chat](https://img.shields.io/discord/621759717756370964.svg)](https://stacks.chat)
 
-## Building
+## Features
 
-### 1. Download and install Rust
+- Proxies requests to a Stacks node API
+- Provides additional endpoints for custom data retrieval
+- Parses and transforms Nakamoto blocks
+
+## Building and Running
+
+### Option 1: Using Podman
+
+#### Prerequisites
+
+- [Podman](https://podman.io/getting-started/installation)
+
+#### Building and Running with Scripts
+
+You can use the provided scripts to build and run the API Proxy:
+
+```bash
+# Build and run the container
+./build-and-run.sh
+
+# Stop and remove the container
+./stop-and-remove.sh
+```
+
+#### Building and Running Manually
+
+```bash
+# Build the image
+podman build -t api-proxy:latest .
+
+# Run the container
+podman run -d --name api-proxy \
+  -p 8080:8080 \
+  -e RUST_LOG=info \
+  -e BIND_ADDRESS=0.0.0.0:8080 \
+  -e STACKS_NODE_URL=https://stacks-node-api.mainnet.stacks.co \
+  api-proxy:latest
+```
+
+#### Using Docker Compose with Podman
+
+```bash
+# Run with docker-compose
+podman-compose up -d
+
+# Stop and remove containers
+podman-compose down
+```
+
+### Option 2: Building Locally
+
+#### 1. Download and install Rust
 
 _For building on Windows, follow the rustup installer instructions at https://rustup.rs/._
 
@@ -26,88 +74,45 @@ source $HOME/.cargo/env
 rustup component add rustfmt
 ```
 
-- When building the [`master`](https://github.com/stacks-network/stacks-core/tree/master) branch, ensure you are using the latest stable release:
+#### 2. Build and run the API Proxy
 
 ```bash
-rustup update
+# Build the api-proxy
+cargo build -p api-proxy --release
+
+# Run the api-proxy
+cargo run -p api-proxy
 ```
 
-### 2. Clone the source repository:
+## Configuration
 
-```bash
-git clone --depth=1 https://github.com/stacks-network/stacks-core.git
-cd stacks-core
-```
+The API Proxy can be configured using environment variables:
 
-### 3. Build the project
+- `BIND_ADDRESS`: The address and port to bind to (default: `127.0.0.1:8080`)
+- `STACKS_NODE_URL`: The URL of the Stacks node API (default: `https://stacks-node-api.mainnet.stacks.co`)
+- `RUST_LOG`: The log level (default: `info`)
 
-```bash
-# Fully optimized release build
-cargo build --release
-# Faster but less optimized build. Necessary if < 16 GB RAM
-cargo build --profile release-lite
-```
+## API Endpoints
 
-_Note on building_: you may set `RUSTFLAGS` to build binaries for your native cpu:
-
-```
-RUSTFLAGS="-Ctarget-cpu=native"
-```
-
-or uncomment these lines in `./cargo/config.toml`:
-
-```
-# [build]
-# rustflags = ["-Ctarget-cpu=native"]
-```
+- `GET /v1/health`: Basic health check
+- `GET /v1/health/detailed`: Detailed health check
+- `GET /v1/blocks/height/{height}/txids`: Get transaction IDs for a block
+- `GET /v1/proxy/v3/blocks/height/{height}`: Get Nakamoto block at a specific height
 
 ## Testing
 
 **Run the tests:**
 
 ```bash
-cargo test testnet  -- --test-threads=1
+cargo test -p api-proxy
 ```
-
-**Run all unit tests in parallel using [nextest](https://nexte.st/):**
-
-_Warning, this typically takes a few minutes_
-
-```bash
-cargo nextest run
-```
-
-_On Windows, many tests will fail, mainly due to parallelism. To mitigate the issue you may need to run the tests individually._
-
-## Run the testnet
-
-You can observe the state machine in action locally by running:
-
-```bash
-cargo run --bin stacks-node -- start --config ./sample/conf/testnet-follower-conf.toml
-```
-
-Additional testnet documentation is available [here](./docs/testnet.md) and [here](https://docs.stacks.co/docs/nodes-and-miners/miner-testnet)
-
-## Release Process
-
-The release process for the stacks blockchain is [defined here](./docs/release-process.md)
 
 ## Further Reading
 
 You can learn more by visiting [the Stacks Website](https://stacks.co) and checking out the documentation:
 
 - [Stacks docs](https://docs.stacks.co/)
-- [Stacks Improvement Proposals (SIPs)](./docs/SIPS.md)
-- [Mining](./docs/mining.md)
-- [Profiling](./docs/profiling.md)
-- [RPC endpoints](./docs/rpc-endpoints.md)
-- [Event dispatcher](./docs/event-dispatcher.md)
-
-You can also read the technical papers:
-
-- ["PoX: Proof of Transfer Mining with Bitcoin"](https://community.stacks.org/pox), May 2020
-- ["Stacks 2.0: Apps and Smart Contracts for Bitcoin"](https://stacks.org/stacks), Dec 2020
+- [RPC endpoints](https://docs.stacks.co/docs/api/)
 
 ## Copyright and License
 

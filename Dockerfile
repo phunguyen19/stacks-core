@@ -1,16 +1,30 @@
 FROM rust:bookworm AS build
 
-ARG STACKS_NODE_VERSION="No Version Info"
-ARG GIT_BRANCH='No Branch Info'
-ARG GIT_COMMIT='No Commit Info'
-
 WORKDIR /src
 COPY . .
 RUN mkdir /out
 RUN rustup toolchain install stable
-RUN cargo build --features monitoring_prom,slog_json --release
-RUN cp -R target/release/. /out
+RUN cargo build -p api-proxy
+RUN cp -R target/debug/api-proxy /out/
 
 FROM debian:bookworm-slim
-COPY --from=build /out/stacks-node /out/stacks-signer /out/stacks-inspect /bin/
-CMD ["stacks-node", "mainnet"]
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y libssl-dev ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the binary from the builder stage
+COPY --from=build /out/api-proxy /bin/
+
+# Set environment variables
+ENV RUST_LOG=info
+ENV BIND_ADDRESS=0.0.0.0:8080
+ENV STACKS_NODE_URL=https://stacks-node-api.mainnet.stacks.co
+
+# Expose the port
+EXPOSE 8080
+
+# Run the api-proxy
+CMD ["api-proxy"]
