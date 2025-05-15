@@ -75,8 +75,17 @@ mod std_principals {
 
     use crate::vm::errors::InterpreterError;
 
-    #[derive(Clone, Eq, PartialEq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
+    #[derive(Clone, Eq, PartialEq, Hash, Deserialize, PartialOrd, Ord)]
     pub struct StandardPrincipalData(u8, pub [u8; 20]);
+
+    impl serde::Serialize for StandardPrincipalData {
+        fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            serializer.serialize_str(&self.to_address())
+        }
+    }
 
     impl StandardPrincipalData {
         pub fn transient() -> StandardPrincipalData {
@@ -191,11 +200,14 @@ impl fmt::Display for QualifiedContractIdentifier {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PrincipalData {
     Standard(StandardPrincipalData),
     Contract(QualifiedContractIdentifier),
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ContractIdentifier {
     Relative(ContractName),
     Qualified(QualifiedContractIdentifier),
@@ -286,6 +298,7 @@ impl TraitIdentifier {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Value {
     Int(i128),
     UInt(u128),
@@ -302,6 +315,7 @@ pub enum Value {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum SequenceData {
     Buffer(BuffData),
     List(ListData),

@@ -609,6 +609,7 @@ impl OrderIndependentMultisigHashMode {
 /// public_keys + signatures_required determines the Principal.
 /// nonce is the "check number" for the Principal.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct MultisigSpendingCondition {
     pub hash_mode: MultisigHashMode,
     pub signer: Hash160,
@@ -619,6 +620,7 @@ pub struct MultisigSpendingCondition {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct SinglesigSpendingCondition {
     pub hash_mode: SinglesigHashMode,
     pub signer: Hash160,
@@ -629,6 +631,7 @@ pub struct SinglesigSpendingCondition {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct OrderIndependentMultisigSpendingCondition {
     pub hash_mode: OrderIndependentMultisigHashMode,
     pub signer: Hash160,
@@ -639,6 +642,7 @@ pub struct OrderIndependentMultisigSpendingCondition {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TransactionSpendingCondition {
     Singlesig(SinglesigSpendingCondition),
     Multisig(MultisigSpendingCondition),
@@ -647,6 +651,7 @@ pub enum TransactionSpendingCondition {
 
 /// Types of transaction authorizations
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TransactionAuth {
     Standard(TransactionSpendingCondition),
     Sponsored(TransactionSpendingCondition, TransactionSpendingCondition), // the second account pays on behalf of the first account
@@ -694,6 +699,7 @@ impl_byte_array_serde!(TokenTransferMemo);
 /// Depending on cause, tenure can be ended or extended
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TenureChangeCause {
     /// A valid winning block-commit
     BlockFound = 0,
@@ -782,11 +788,11 @@ impl TenureChangePayload {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TransactionPayload {
     TokenTransfer(PrincipalData, u64, TokenTransferMemo),
     ContractCall(TransactionContractCall),
     SmartContract(TransactionSmartContract, Option<ClarityVersion>),
-    // the previous epoch leader sent two microblocks with the same sequence, and this is proof
     PoisonMicroblock(StacksMicroblockHeader, StacksMicroblockHeader),
     Coinbase(CoinbasePayload, Option<PrincipalData>, Option<VRFProof>),
     TenureChange(TenureChangePayload),
@@ -935,6 +941,7 @@ impl NonfungibleConditionCode {
 
 /// Post-condition principal.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PostConditionPrincipal {
     Origin,
     Standard(StacksAddress),
@@ -968,6 +975,7 @@ pub enum PostConditionPrincipalID {
 
 /// Post-condition on a transaction
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TransactionPostCondition {
     STX(PostConditionPrincipal, FungibleConditionCode, u64),
     Fungible(
