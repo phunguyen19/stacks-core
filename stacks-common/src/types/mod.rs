@@ -22,6 +22,9 @@ use std::sync::LazyLock;
 #[cfg(feature = "rusqlite")]
 pub mod sqlite;
 
+#[cfg(not(feature = "rusqlite"))]
+pub mod rusqlite_dummy;
+
 use crate::address::c32::{c32_address, c32_address_decode};
 use crate::address::{
     public_keys_to_address_hash, to_bits_p2pkh, AddressHashMode,

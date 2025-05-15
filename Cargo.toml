@@ -8,9 +8,6 @@ members = [
     "stx-genesis",
     "libstackerdb",
     "contrib/tools/relay-server",
-    "libsigner",
-    "stacks-signer",
-    "testnet/stacks-node",
     "api-proxy"
 ]
 
@@ -22,7 +19,7 @@ rand_core = "0.6.4"
 rand = "0.8"
 rand_chacha = "0.3.1"
 tikv-jemallocator = "0.5.4"
-rusqlite = { version = "0.31.0", features = ["blob", "serde_json", "i128_blob", "bundled", "trace"] }
+
 thiserror = "1.0.65"
 toml = "0.5.6"
 

@@ -15,6 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #[cfg(feature = "rusqlite")]
 pub use sqlite::MemoryBackingStore;
+#[cfg(not(feature = "rusqlite"))]
+pub use sqlite_dummy::MemoryBackingStore;
 
 pub use self::clarity_db::{
     BurnStateDB, ClarityDatabase, HeadersDB, StoreType, NULL_BURN_STATE_DB, NULL_HEADER_DB,
@@ -24,6 +26,8 @@ pub use self::clarity_store::{ClarityBackingStore, SpecialCaseHandler};
 pub use self::key_value_wrapper::{RollbackWrapper, RollbackWrapperPersistedLog};
 #[cfg(feature = "rusqlite")]
 pub use self::sqlite::SqliteConnection;
+#[cfg(not(feature = "rusqlite"))]
+pub use self::sqlite_dummy::SqliteConnection;
 pub use self::structures::{
     ClarityDeserializable, ClaritySerializable, DataMapMetadata, DataVariableMetadata,
     FungibleTokenMetadata, NonFungibleTokenMetadata, STXBalance,
@@ -34,4 +38,6 @@ pub mod clarity_store;
 mod key_value_wrapper;
 #[cfg(feature = "rusqlite")]
 pub mod sqlite;
+#[cfg(not(feature = "rusqlite"))]
+pub mod sqlite_dummy;
 mod structures;
